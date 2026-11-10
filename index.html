@@ -92,6 +92,12 @@ table.pr{width:100%;border-collapse:separate;border-spacing:0;margin-top:12px;fo
 .pr tr:first-child td.t{border-radius:8px 8px 0 0}.pr tr:last-child td.t{border-radius:0 0 8px 8px}
 .pr tr:only-child td.t{border-radius:8px}
 .pr .na{color:var(--muted);font-weight:500}
+.pr td.fm{font-size:12px;font-weight:600;color:var(--muted);line-height:1.35;vertical-align:top}
+.pr tr.fmr{display:none}.pr tr.fmr td{border-top:0;padding:0 0 5px;text-align:left;white-space:normal;font-size:11px;font-weight:600;color:var(--muted)}
+.body{container-type:inline-size}
+@container (max-width:300px){.pr td.fm,.pr th.fmh{display:none}.pr tr.fmr{display:table-row}}
+.pr tr:has(+ tr.fmr:last-child) td.t{border-radius:0 0 8px 8px}.pr tbody tr:first-child:has(+ tr.fmr:last-child) td.t{border-radius:8px}
+.pr th:last-child{white-space:nowrap}
 .unit{font-size:11px;color:var(--muted);margin-top:8px}
 
 .notes{margin:64px 0 0;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
@@ -172,6 +178,7 @@ footer{padding:34px 0 60px;text-align:center;color:var(--muted);font-size:13px}
 .pdf table.pr{font-size:10.5px;margin-top:1.6mm}
 .pdf .pr th{font-size:6.5px;padding:0 5px 3px;letter-spacing:.06em}
 .pdf .pr td{padding:2.2px 5px}
+.pdf .pr td.fm{font-size:8.5px;line-height:1.25}
 .pdf .pr td:first-child span{font-size:9.5px;min-width:0;padding:1.5px 6px;border-radius:5px}
 .pdf .unit{display:none}
 .pdf .grid + .grid{margin-top:2.5mm}
@@ -188,6 +195,7 @@ footer{padding:34px 0 60px;text-align:center;color:var(--muted);font-size:13px}
 .pdf .invite h3{font-size:15px;max-width:none}.pdf .invite p{font-size:10px;margin-top:2mm}
 .pdf .invite .btn{padding:6px 16px;font-size:11px}
 .pdf footer{padding:3mm 0 0;font-size:8.5px}
+.pr.fmt th{text-align:left}.pr.fmt td.fm{display:table-cell!important;text-align:left;font-size:13px;color:var(--ink);white-space:nowrap}.pdf .pr.fmt td.fm{font-size:9.5px}
 </style>
 <link rel="stylesheet" href="parts.css">
 </head>
@@ -276,6 +284,12 @@ $("#stack").innerHTML = [[24, "p1"], [1, "p2"], [11, "p3"]].map(([f, c]) => {
   return `<div class="pane ${c}" data-open="${it.id}"><img src="${thumb(f)}" alt="${it.n}" width="560" height="560"></div>`;
 }).join("");
 
+function fmtTable(it) {
+  const th = it.th || Object.keys(it.fm || {});
+  if (!th.length) return "";
+  const rows = th.map(t => `<tr><td><span>${t} мм</span></td><td class="fm">${((it.fm || {})[t] || []).join("<br>") || '<span class="na">—</span>'}</td></tr>`).join("");
+  return `<table class="pr fmt"><thead><tr><th>Толщина</th><th>Формат листа, мм</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
 const plural = n => n % 10 === 1 && n % 100 !== 11 ? "позиция" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "позиции" : "позиций");
 
 function card(it) {
@@ -289,6 +303,7 @@ function card(it) {
       <div class="body">
         <div class="name">${it.n}</div>
         <div class="desc">${it.d}</div>
+        ${fmtTable(it)}
       </div>
     </article>`;
 }
@@ -320,6 +335,7 @@ function show(id) {
     <span class="lbl">${CAT[it.ci].g}</span>
     <div class="name">${it.n}</div>
     <div class="desc">${it.d}</div>
+    ${fmtTable(it)}
     <div class="hint">Нажмите на фото — увеличение ×2,5. Листайте стрелками ← → или свайпом.</div>`;
 }
 function openLb(id) { $("#lb").classList.add("on"); document.body.style.overflow = "hidden"; show(id); }
